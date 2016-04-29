@@ -9,7 +9,7 @@ import android.widget.Toast;
  */
 public class DL {
     public  static void t(Context context,String msg){
-        Toast.makeText(context,msg,Toast.LENGTH_LONG).show();
+        Toast.makeText( context,msg,Toast.LENGTH_LONG).show();
     }
     public static void p(String msg){
         Log.v("ARUN", msg);

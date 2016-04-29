@@ -14,7 +14,9 @@ import java.util.ArrayList;
 public class defaultPlayList extends AppCompatActivity {
     TextView playlist;
     StringBuffer buffer = new StringBuffer();
-
+    ArrayList<String> paths =  new ArrayList<String>();
+    final MediaPlayer player = new MediaPlayer();
+    int  index =0 ;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -84,6 +86,8 @@ public class defaultPlayList extends AppCompatActivity {
             DL.t(getApplicationContext(), "Numeber of Songs in playList " + count);
             DL.p("Numeber of Songs in playList " + count);
             tracks.moveToFirst();
+//             paths =  new ArrayList<String>();
+//             player = new MediaPlayer();
             buffer.append("List of  Songs : \n ");
             do {
 
@@ -91,31 +95,53 @@ public class defaultPlayList extends AppCompatActivity {
                 int min = duration / 60 ;
                 int sec = duration % 60 ;
                 final String dataPath = tracks.getString(tracks.getColumnIndex(dataKey));
-                buffer.append(" >> \n "+tracks.getString(tracks.getColumnIndex(titleKey))+
-                        "  [ "+min+" : "+sec+" ]\n path : "+dataPath);
+                buffer.append(" >> \n " + tracks.getString(tracks.getColumnIndex(titleKey)) +
+                        "  [ " + min + " : " + sec + " ]\n path : " + dataPath);
+                // playAudio(dataPath);
+                paths.add(dataPath);
             }while (tracks.moveToNext());
 
+            // final MediaPlayer player = new MediaPlayer();
+            playAudio(paths.get(0),player);
 /*
             final int dataIndex = tracks.getColumnIndex(dataKey);
             final String dataPath = tracks.getString(dataIndex);
             playAudio(dataPath);
-            tracks.close();
-*/        }
+*/            tracks.close();
+        }
     }
 
-    public static void playAudio(final String path) {
-        final MediaPlayer player = new MediaPlayer();
-        if (path == null) {
-            DL.p( "Called playAudio with null data stream.");
+    public  void playAudio( String SongsList, final MediaPlayer player) {
+        //final MediaPlayer player = new MediaPlayer();
+        if (SongsList == null) {
+            DL.p("Called playAudio with null data stream.");
             return;
         }
+
         try {
-            player.setDataSource(path);
+
+            player.setDataSource(SongsList);
+            DL.p("inedx "+index+"  song : "+SongsList);
             player.prepare();
             player.start();
+            player.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                @Override
+                public void onCompletion(MediaPlayer mp) {
+
+                    DL.p("Song play Completed ");
+
+                    player.reset();
+                    playNextTrack();
+                }
+            });
         } catch (Exception e) {
             DL.p( "Failed to start MediaPlayer: " + e.getMessage());
             return;
         }
     }
+    public    void playNextTrack(){
+        index = (index >= paths.size()) ?  0: index ;
+        playAudio(paths.get(++index), player);
+    }
+
 }
