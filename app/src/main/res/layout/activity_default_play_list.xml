@@ -7,11 +7,28 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
+    android:background="#33fc2f"
     tools:context="tech.sree.com.timelymusic_1.defaultPlayList">
-    <TextView
+   <!-- <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/pList"
         android:text="Default PlayList in phone: "/>
+
+    <ListView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/listViewDefault"
+        android:layout_below="@+id/pList"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="62dp" />
+-->
+    <ExpandableListView
+        android:id="@+id/expandableListView"
+        android:layout_height="match_parent"
+        android:layout_width="match_parent"
+        android:indicatorLeft="?android:attr/expandableListPreferredItemIndicatorLeft"
+        android:divider="@android:color/darker_gray"
+        android:dividerHeight="0.5dp" />
 
 </RelativeLayout>
