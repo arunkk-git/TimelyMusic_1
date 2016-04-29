@@ -14,6 +14,7 @@ import java.util.ArrayList;
 public class defaultPlayList extends AppCompatActivity {
     TextView playlist;
     StringBuffer buffer = new StringBuffer();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -23,14 +24,12 @@ public class defaultPlayList extends AppCompatActivity {
     }
 
     public void getdefaultMusicPlayList(){
-        //String[] proj = {"*"};
+
         Uri tempPlaylistURI = MediaStore.Audio.Playlists.EXTERNAL_CONTENT_URI;
 
         final String idKey = MediaStore.Audio.Playlists._ID;
         final String nameKey = MediaStore.Audio.Playlists.NAME;
         final String[] proj = { idKey, nameKey };
-        // final Cursor playLists = resolver.query(uri, columns, null, null, null);
-
 
         Cursor playListCursor= getContentResolver().query(tempPlaylistURI, proj, null, null, null);
 
@@ -38,27 +37,28 @@ public class defaultPlayList extends AppCompatActivity {
             DL.p("Not having any Playlist on phone --------------");
             return;//don't have list on phone
         }
-
-        System.gc();
-
         String playListName = null;
 
         DL.p(">>>>>>>  CREATING AND DISPLAYING LIST OF ALL CREATED PLAYLIST  <<<<<<");
-        //StringBuffer buffer = new StringBuffer();
+
         for(int i = 0; i <playListCursor.getCount() ; i++)
         {
             playListCursor.moveToPosition(i);
             playListName = playListCursor.getString(playListCursor.getColumnIndex("name"));
             DL.p("> " + i + "  : " + playListName);
-            buffer.append("> " + i + "  : " + playListName);
+            buffer.append("\n > " + i + "  : " + playListName);
         }
-
 
         // Play the first song from the first playlist.
         playListCursor.moveToFirst();
-        final long playlistID = playListCursor.getLong(playListCursor.getColumnIndex(idKey));
-        this.playTrackFromPlaylist(playlistID);
-        playlist.setText("Default PlayList in phone: \n "+buffer);
+        for(int i = 0; i <playListCursor.getCount() ; i++) {
+            playListCursor.moveToPosition(i);
+
+            // final long playlistID = playListCursor.getLong(playListCursor.getColumnIndex(idKey));
+            this.playTrackFromPlaylist(playListCursor.getLong(playListCursor.getColumnIndex(idKey)));
+
+        }
+        playlist.setText("\n Default PlayList in phone:  " + buffer);
 
         if(playListCursor != null)
             playListCursor.close();
@@ -68,10 +68,14 @@ public class defaultPlayList extends AppCompatActivity {
         final ContentResolver resolver = this.getContentResolver();
         final Uri uri = MediaStore.Audio.Playlists.Members.getContentUri("external", playListID);
         final String dataKey = MediaStore.Audio.Media.DATA;
+        final String titleKey = android.provider.MediaStore.Audio.Media.TITLE;
+        final String duriationKey =  MediaStore.Audio.Media.DURATION;
 
-        String projection[]={android.provider.MediaStore.Audio.Media.DATA,
-                android.provider.MediaStore.Audio.Media.TITLE,
-                MediaStore.Audio.Media.DURATION
+
+        String projection[]={dataKey,titleKey,duriationKey
+//                android.provider.MediaStore.Audio.Media.DATA,
+//                android.provider.MediaStore.Audio.Media.TITLE,
+//                MediaStore.Audio.Media.DURATION
         };
         //Cursor tracks = resolver.query(uri, new String[] { dataKey }, null, null, null);
         Cursor tracks = resolver.query(uri, projection, null, null, null);
@@ -81,14 +85,15 @@ public class defaultPlayList extends AppCompatActivity {
             DL.p("Numeber of Songs in playList " + count);
             tracks.moveToFirst();
             buffer.append("List of  Songs : \n ");
-            while (tracks.moveToNext()) {
+            do {
 
-                int  duration=(Integer.parseInt(tracks.getString(2)))/1000;
+                int  duration=(Integer.parseInt(tracks.getString(tracks.getColumnIndex(duriationKey))))/1000;
                 int min = duration / 60 ;
                 int sec = duration % 60 ;
-
-                buffer.append(" >> \n "+tracks.getString(1)+"  [ "+min+" : "+sec+" ]");
-            }
+                final String dataPath = tracks.getString(tracks.getColumnIndex(dataKey));
+                buffer.append(" >> \n "+tracks.getString(tracks.getColumnIndex(titleKey))+
+                        "  [ "+min+" : "+sec+" ]\n path : "+dataPath);
+            }while (tracks.moveToNext());
 
 /*
             final int dataIndex = tracks.getColumnIndex(dataKey);
